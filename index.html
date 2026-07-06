@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light">
+    <title>Планировщик задач</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand">
+        <span class="brand__mark" aria-hidden="true">✓</span>
+        <span class="brand__copy">
+          <span class="brand__name">Фокус</span>
+          <span class="brand__caption">планировщик задач</span>
+        </span>
+      </div>
+
+      <nav class="main-nav" aria-label="Основная навигация">
+        <button class="main-nav__item is-active" type="button" data-screen="planner" aria-current="page">
+          Планировщик
+        </button>
+        <button class="main-nav__item" type="button" data-screen="reports">
+          Отчёты
+        </button>
+      </nav>
+    </header>
+
+    <main class="app-main">
+      <section class="screen is-active" id="planner-screen" data-screen-panel="planner" aria-labelledby="planner-title">
+        <header class="screen__header">
+          <p class="screen__eyebrow">Пространство для ясных планов</p>
+          <h1 id="planner-title">Ваш день, в фокусе</h1>
+          <p class="screen__subtitle">Разложите важное по времени и оставьте место для спокойной работы.</p>
+        </header>
+        <div class="screen__content planner-content" aria-label="Содержимое планировщика">
+          <section class="date-planner" aria-labelledby="date-planner-title">
+            <div class="date-planner__heading">
+              <div>
+                <p class="section-label">Рабочая неделя</p>
+                <h2 id="date-planner-title">Выберите ритм дня</h2>
+              </div>
+
+              <div class="date-navigation" aria-label="Переключение по дням">
+                <button class="icon-button" type="button" data-date-action="previous" aria-label="Предыдущий день">
+                  <span aria-hidden="true">←</span>
+                </button>
+                <label class="date-field">
+                  <span>Дата</span>
+                  <input id="planner-date" type="date">
+                </label>
+                <button class="icon-button" type="button" data-date-action="next" aria-label="Следующий день">
+                  <span aria-hidden="true">→</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="week-strip-wrapper">
+              <div class="week-strip" id="week-strip" aria-label="Семь дней вокруг выбранной даты"></div>
+            </div>
+          </section>
+
+          <div class="planner-workspace">
+            <section class="task-form-panel" aria-labelledby="task-form-title">
+              <div class="panel-heading">
+                <p class="section-label" id="task-form-mode-label">Новый фокус</p>
+                <h2 id="task-form-title">Добавить в план</h2>
+              </div>
+
+              <form class="task-form" id="task-form">
+                <label class="form-field form-field--wide">
+                  <span>Название <b aria-hidden="true">*</b></span>
+                  <input id="task-title" name="title" type="text" maxlength="160" required autocomplete="off" placeholder="Что важно сделать?">
+                </label>
+
+                <label class="form-field">
+                  <span>Дата</span>
+                  <input id="task-date" name="date" type="date" required>
+                </label>
+
+                <label class="form-field">
+                  <span>Время</span>
+                  <input id="task-time" name="time" type="time">
+                </label>
+
+                <label class="form-field is-disabled" id="duration-field">
+                  <span>Длительность, минут</span>
+                  <input id="task-duration" name="duration" type="number" min="1" step="5" inputmode="numeric" disabled>
+                </label>
+
+                <label class="form-field">
+                  <span>Приоритет</span>
+                  <select id="task-priority" name="priority">
+                    <option value="high">Высокий</option>
+                    <option value="medium" selected>Средний</option>
+                    <option value="low">Низкий</option>
+                  </select>
+                </label>
+
+                <label class="form-field form-field--wide">
+                  <span>Тег клиента</span>
+                  <input id="task-client-tag" name="clientTag" type="text" maxlength="60" autocomplete="off" placeholder="Например, Альфа">
+                </label>
+
+                <label class="form-field">
+                  <span>Повторение</span>
+                  <select id="task-recurrence" name="recurrence">
+                    <option value="none" selected>Не повторять</option>
+                    <option value="daily">Ежедневно</option>
+                    <option value="weekly">Еженедельно</option>
+                  </select>
+                </label>
+
+                <label class="form-field is-disabled" id="weekday-field">
+                  <span>День недели</span>
+                  <select id="task-recurrence-weekday" name="recurrenceWeekday" disabled>
+                    <option value="1">Понедельник</option>
+                    <option value="2">Вторник</option>
+                    <option value="3">Среда</option>
+                    <option value="4">Четверг</option>
+                    <option value="5">Пятница</option>
+                    <option value="6">Суббота</option>
+                    <option value="0">Воскресенье</option>
+                  </select>
+                </label>
+
+                <div class="form-actions form-field--wide">
+                  <button class="button button--primary" id="task-submit-button" type="submit">Добавить в план</button>
+                  <button class="button button--secondary" id="cancel-edit-button" type="button" hidden>Отменить</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="task-list-panel" aria-labelledby="task-list-title">
+              <div class="panel-heading task-list-heading">
+                <div>
+                  <p class="section-label" id="task-list-context">План на день</p>
+                  <h2 id="task-list-title">Задачи</h2>
+                </div>
+                <span class="task-total" id="task-total">0</span>
+              </div>
+              <div class="task-filters" aria-label="Фильтры задач">
+                <label class="filter-field">
+                  <span>Статус</span>
+                  <select id="status-filter">
+                    <option value="active" selected>Активные</option>
+                    <option value="completed">Выполненные</option>
+                    <option value="overdue">Просроченные</option>
+                  </select>
+                </label>
+
+                <label class="filter-field">
+                  <span>Приоритет</span>
+                  <select id="priority-filter">
+                    <option value="all" selected>Все приоритеты</option>
+                    <option value="high">Высокий</option>
+                    <option value="medium">Средний</option>
+                    <option value="low">Низкий</option>
+                  </select>
+                </label>
+
+                <label class="filter-field">
+                  <span>Клиент</span>
+                  <select id="client-filter">
+                    <option value="all" selected>Все клиенты</option>
+                  </select>
+                </label>
+              </div>
+              <div class="task-list" id="task-list"></div>
+              <details class="completed-section" id="completed-section">
+                <summary>
+                  <span>Завершённые</span>
+                  <span class="completed-total" id="completed-total">0</span>
+                </summary>
+                <div class="task-list task-list--completed" id="completed-task-list"></div>
+              </details>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="reports-screen" data-screen-panel="reports" aria-labelledby="reports-title" hidden>
+        <header class="screen__header">
+          <p class="screen__eyebrow">Спокойная аналитика</p>
+          <h1 id="reports-title">Ритм и результат</h1>
+          <p class="screen__subtitle">Смотрите на неделю целиком: без оценок, только полезные сигналы.</p>
+        </header>
+        <div class="screen__content reports-content" aria-label="Содержимое отчётов">
+          <section class="report-toolbar" aria-label="Управление отчетом">
+            <div>
+              <p class="section-label">Отчётная неделя</p>
+              <h2 id="report-week-label"></h2>
+            </div>
+            <div class="report-toolbar__actions">
+              <div class="week-navigation" aria-label="Переключение недель">
+                <button class="icon-button" id="previous-report-week" type="button" aria-label="Предыдущая неделя">←</button>
+                <button class="icon-button" id="next-report-week" type="button" aria-label="Следующая неделя">→</button>
+              </div>
+              <button class="button button--primary" id="export-database" type="button">Экспорт JSON</button>
+            </div>
+          </section>
+
+          <section class="report-metrics" aria-label="Метрики недели">
+            <article class="metric-card">
+              <span>Запланировано</span>
+              <strong id="metric-planned">0</strong>
+            </article>
+            <article class="metric-card metric-card--completed">
+              <span>Выполнено</span>
+              <strong id="metric-completed">0</strong>
+            </article>
+            <article class="metric-card metric-card--overdue">
+              <span>Стало просроченными</span>
+              <strong id="metric-overdue">0</strong>
+            </article>
+            <article class="metric-card metric-card--rate">
+              <span>Выполнено вовремя</span>
+              <strong id="metric-completion-rate">0%</strong>
+            </article>
+          </section>
+
+          <section class="report-chart-panel" aria-labelledby="report-chart-title">
+            <div class="report-chart-heading">
+              <div>
+                <p class="section-label">Динамика недели</p>
+                <h2 id="report-chart-title">Выполнение и просрочки</h2>
+              </div>
+              <div class="chart-legend" aria-label="Легенда">
+                <span><i class="chart-legend__completed"></i>Выполнено</span>
+                <span><i class="chart-legend__overdue"></i>Просрочено</span>
+              </div>
+            </div>
+            <div class="report-chart-scroll">
+              <svg id="report-chart" viewBox="0 0 760 320" role="img" aria-labelledby="report-chart-title report-chart-description">
+                <desc id="report-chart-description">Столбчатая диаграмма выполненных и ставших просроченными задач по дням недели.</desc>
+              </svg>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <div class="notification-region" id="notification-region" aria-live="polite" aria-atomic="true"></div>
+
+    <dialog class="storage-dialog" id="storage-error-dialog" aria-labelledby="storage-error-title">
+      <form method="dialog">
+        <div class="storage-dialog__icon" aria-hidden="true">!</div>
+        <h2 id="storage-error-title">Ошибка чтения данных</h2>
+        <p>
+          Данные в локальном хранилище повреждены. Приложение продолжит работу без их загрузки.
+          Сбросить повреждённую базу?
+        </p>
+        <div class="storage-dialog__actions">
+          <button class="button button--secondary" value="cancel" type="submit">Оставить данные</button>
+          <button class="button button--danger" id="confirm-database-reset" value="confirm" type="submit">
+            Сбросить базу
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="choice-dialog" id="edit-scope-dialog" aria-labelledby="edit-scope-title">
+      <form method="dialog">
+        <h2 id="edit-scope-title">Что изменить?</h2>
+        <p>Задача входит в повторяющуюся серию.</p>
+        <div class="choice-dialog__actions">
+          <button class="button button--primary" id="edit-single-instance" value="single" type="submit">
+            Только этот экземпляр
+          </button>
+          <button class="button button--secondary" id="edit-entire-series" value="series" type="submit">
+            Всю серию
+          </button>
+          <button class="button button--text" value="cancel" type="submit">Отмена</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="choice-dialog" id="stop-series-dialog" aria-labelledby="stop-series-title">
+      <form method="dialog">
+        <h2 id="stop-series-title">Остановить серию?</h2>
+        <p>Новые экземпляры больше не будут создаваться. Что сделать с будущими незавершёнными задачами?</p>
+        <div class="choice-dialog__actions">
+          <button class="button button--primary" id="stop-series-keep" value="keep" type="submit">
+            Оставить будущие
+          </button>
+          <button class="button button--danger" id="stop-series-delete" value="delete" type="submit">
+            Удалить будущие
+          </button>
+          <button class="button button--text" value="cancel" type="submit">Отмена</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="move-dialog" id="move-task-dialog" aria-labelledby="move-task-title">
+      <form method="dialog">
+        <p class="section-label">Перенос задачи</p>
+        <h2 id="move-task-title">Выберите новое время</h2>
+        <p class="move-dialog__date" id="move-target-date"></p>
+
+        <label class="form-field">
+          <span>Новое время</span>
+          <input id="move-task-time" type="time" required>
+        </label>
+        <p class="move-dialog__duration" id="move-task-duration"></p>
+
+        <section class="occupied-schedule" aria-labelledby="occupied-schedule-title">
+          <h3 id="occupied-schedule-title">Занятые интервалы</h3>
+          <div id="occupied-intervals"></div>
+        </section>
+
+        <div class="conflict-warning" id="move-conflict-warning" role="alert" hidden></div>
+
+        <div class="move-dialog__actions">
+          <button class="button button--secondary" value="cancel" type="submit">Отмена</button>
+          <button class="button button--primary" id="confirm-task-move" value="confirm" type="submit">
+            Перенести
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <noscript>
+      <p class="noscript-message">Для работы планировщика необходимо включить JavaScript.</p>
+    </noscript>
+  </body>
+</html>
