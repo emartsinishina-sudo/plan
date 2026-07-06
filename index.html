@@ -97,10 +97,17 @@
                   <input id="task-time" name="time" type="time">
                 </label>
 
-                <label class="form-field is-disabled" id="duration-field">
-                  <span>Длительность, минут</span>
-                  <input id="task-duration" name="duration" type="number" min="1" step="5" inputmode="numeric" disabled>
-                </label>
+                <div class="form-field is-disabled" id="duration-field">
+                  <label for="task-duration">Длительность, минут</label>
+                  <input id="task-duration" name="duration" type="number" min="5" step="5" inputmode="numeric" placeholder="30" disabled>
+                  <div class="duration-presets" aria-label="Быстрый выбор длительности">
+                    <button type="button" data-duration-preset="15" disabled>15</button>
+                    <button type="button" data-duration-preset="30" disabled>30</button>
+                    <button type="button" data-duration-preset="45" disabled>45</button>
+                    <button type="button" data-duration-preset="60" disabled>60</button>
+                    <button type="button" data-duration-preset="90" disabled>90</button>
+                  </div>
+                </div>
 
                 <label class="form-field">
                   <span>Приоритет</span>

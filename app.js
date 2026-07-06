@@ -25,6 +25,7 @@
   const taskTimeInput = document.querySelector("#task-time");
   const taskDurationInput = document.querySelector("#task-duration");
   const durationField = document.querySelector("#duration-field");
+  const durationPresetButtons = document.querySelectorAll("[data-duration-preset]");
   const taskPriorityInput = document.querySelector("#task-priority");
   const taskClientTagInput = document.querySelector("#task-client-tag");
   const taskRecurrenceInput = document.querySelector("#task-recurrence");
@@ -905,6 +906,16 @@
     }
   }
 
+  function syncDurationPresets() {
+    durationPresetButtons.forEach((button) => {
+      button.disabled = taskDurationInput.disabled;
+      button.classList.toggle(
+        "is-selected",
+        !button.disabled && button.dataset.durationPreset === taskDurationInput.value
+      );
+    });
+  }
+
   function syncDurationField() {
     const hasTime = Boolean(taskTimeInput.value);
     taskDurationInput.disabled = !hasTime;
@@ -912,6 +923,7 @@
     if (!hasTime) {
       taskDurationInput.value = "";
     }
+    syncDurationPresets();
   }
 
   function syncRecurrenceField() {
@@ -1581,6 +1593,15 @@
   exportDatabaseButton.addEventListener("click", exportDatabase);
 
   taskTimeInput.addEventListener("input", syncDurationField);
+  taskDurationInput.addEventListener("input", syncDurationPresets);
+
+  durationPresetButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      taskDurationInput.value = button.dataset.durationPreset;
+      syncDurationPresets();
+      taskDurationInput.focus();
+    });
+  });
 
   taskRecurrenceInput.addEventListener("change", () => {
     if (taskRecurrenceInput.value === "weekly") {
