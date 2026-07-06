@@ -16,6 +16,10 @@
   const dateInput = document.querySelector("#planner-date");
   const weekStrip = document.querySelector("#week-strip");
   const taskForm = document.querySelector("#task-form");
+  const taskFormPanel = document.querySelector("#task-form-panel");
+  const openTaskDrawerButton = document.querySelector("#open-task-drawer");
+  const closeTaskDrawerButton = document.querySelector("#close-task-drawer");
+  const taskDrawerBackdrop = document.querySelector("#task-drawer-backdrop");
   const taskTitleInput = document.querySelector("#task-title");
   const taskDateInput = document.querySelector("#task-date");
   const taskTimeInput = document.querySelector("#task-time");
@@ -560,6 +564,7 @@
   function selectDate(date) {
     if (editingTaskId) {
       resetTaskForm();
+      closeTaskDrawer(false);
     }
     selectedDate = startOfDay(date);
     renderDateControls();
@@ -915,6 +920,22 @@
     weekdayField.classList.toggle("is-disabled", !isWeekly || taskRecurrenceInput.disabled);
   }
 
+  function openTaskDrawer() {
+    taskFormPanel.inert = false;
+    taskFormPanel.setAttribute("aria-hidden", "false");
+    document.body.classList.add("is-task-drawer-open");
+    taskTitleInput.focus();
+  }
+
+  function closeTaskDrawer(restoreFocus = true) {
+    document.body.classList.remove("is-task-drawer-open");
+    taskFormPanel.inert = true;
+    taskFormPanel.setAttribute("aria-hidden", "true");
+    if (restoreFocus) {
+      openTaskDrawerButton.focus();
+    }
+  }
+
   function resetTaskForm() {
     editingTaskId = null;
     editingMode = "single";
@@ -969,8 +990,7 @@
     cancelEditButton.hidden = false;
     syncDurationField();
     syncRecurrenceField();
-    taskForm.scrollIntoView({ behavior: "smooth", block: "start" });
-    taskTitleInput.focus();
+    openTaskDrawer();
   }
 
   function canChangeDatabase() {
@@ -1082,6 +1102,7 @@
       editingTaskId === taskId
     ) {
       resetTaskForm();
+      closeTaskDrawer();
     }
   }
 
@@ -1098,6 +1119,7 @@
 
     if (commitTasks(nextTasks) && editingTaskId === taskId) {
       resetTaskForm();
+      closeTaskDrawer();
     }
   }
 
@@ -1135,6 +1157,7 @@
           !nextTasks.some((task) => task.id === editingTaskId))
       ) {
         resetTaskForm();
+        closeTaskDrawer();
       }
     }
   }
@@ -1478,6 +1501,7 @@
       database = emptyDatabase;
       storageHasParseError = false;
       resetTaskForm();
+      closeTaskDrawer(false);
       renderDateControls();
       renderTaskList();
       renderReports();
@@ -1486,6 +1510,7 @@
   }
 
   function switchScreen(screenName) {
+    closeTaskDrawer(false);
     document.querySelectorAll("[data-screen-panel]").forEach((panel) => {
       const isActive = panel.dataset.screenPanel === screenName;
       panel.hidden = !isActive;
@@ -1695,6 +1720,31 @@
     requestTaskMove(taskId, targetDay.dataset.date);
   });
 
+  openTaskDrawerButton.addEventListener("click", () => {
+    resetTaskForm();
+    openTaskDrawer();
+  });
+
+  closeTaskDrawerButton.addEventListener("click", () => {
+    resetTaskForm();
+    closeTaskDrawer();
+  });
+
+  taskDrawerBackdrop.addEventListener("click", () => {
+    resetTaskForm();
+    closeTaskDrawer();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (
+      event.key === "Escape" &&
+      document.body.classList.contains("is-task-drawer-open")
+    ) {
+      resetTaskForm();
+      closeTaskDrawer();
+    }
+  });
+
   taskForm.addEventListener("submit", (event) => {
     event.preventDefault();
 
@@ -1731,6 +1781,7 @@
       const editedTask = database.tasks.find((task) => task.id === editingTaskId);
       if (!editedTask || editedTask.isCompleted) {
         resetTaskForm();
+        closeTaskDrawer();
         renderTaskList();
         return;
       }
@@ -1856,13 +1907,13 @@
 
     if (wasCommitted) {
       resetTaskForm();
-      taskTitleInput.focus();
+      closeTaskDrawer();
     }
   });
 
   cancelEditButton.addEventListener("click", () => {
     resetTaskForm();
-    taskTitleInput.focus();
+    closeTaskDrawer();
   });
 
   taskListPanel.addEventListener("click", (event) => {

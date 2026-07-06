@@ -26,6 +26,13 @@
           Отчёты
         </button>
       </nav>
+
+      <div class="header-actions">
+        <button class="button button--primary header-add-task" id="open-task-drawer" type="button">
+          <span aria-hidden="true">＋</span>
+          Новая задача
+        </button>
+      </div>
     </header>
 
     <main class="app-main">
@@ -63,10 +70,15 @@
           </section>
 
           <div class="planner-workspace">
-            <section class="task-form-panel" aria-labelledby="task-form-title">
-              <div class="panel-heading">
-                <p class="section-label" id="task-form-mode-label">Новый фокус</p>
-                <h2 id="task-form-title">Добавить в план</h2>
+            <section class="task-form-panel" id="task-form-panel" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="task-form-title" inert>
+              <div class="panel-heading task-form-heading">
+                <div>
+                  <p class="section-label" id="task-form-mode-label">Новый фокус</p>
+                  <h2 id="task-form-title">Добавить в план</h2>
+                </div>
+                <button class="drawer-close-button" id="close-task-drawer" type="button" aria-label="Закрыть форму">
+                  ×
+                </button>
               </div>
 
               <form class="task-form" id="task-form">
@@ -132,6 +144,7 @@
                 </div>
               </form>
             </section>
+            <button class="drawer-backdrop" id="task-drawer-backdrop" type="button" aria-label="Закрыть форму задачи" tabindex="-1"></button>
 
             <section class="task-list-panel" aria-labelledby="task-list-title">
               <div class="panel-heading task-list-heading">
